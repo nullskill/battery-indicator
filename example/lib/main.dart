@@ -11,6 +11,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  static const batteryChargeTitle = 'Battery charge: ';
+  final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   late BatteryIndicator _batteryIndicator;
   String _batteryCharge = 'unknown';
 
@@ -26,7 +28,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void _didBatteryChargeChange(Future<int> value) async {
+  Future<void> didBatteryChargeChange(Future<int> value) async {
     final batteryCharge = await value;
     setState(() {
       _batteryCharge = '$batteryCharge %';
@@ -36,19 +38,32 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Material(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                child: Text('Get Battery charge'),
-                onPressed: () => _didBatteryChargeChange(
-                  _batteryIndicator.getBatteryCharge(),
+      home: ScaffoldMessenger(
+        key: scaffoldMessengerKey,
+        child: Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  child: Text('Get Battery charge'),
+                  onPressed: () async {
+                    await didBatteryChargeChange(_batteryIndicator.getBatteryCharge());
+                    final snackBar = SnackBar(
+                      content: Text('$batteryChargeTitle$_batteryCharge'),
+                      action: SnackBarAction(
+                        label: 'Ok',
+                        onPressed: () {
+                          print('$batteryChargeTitle$_batteryCharge');
+                        },
+                      ),
+                    );
+                    scaffoldMessengerKey.currentState!.showSnackBar(snackBar);
+                  },
                 ),
-              ),
-              Text('Battery charge: $_batteryCharge'),
-            ],
+                Text('$batteryChargeTitle$_batteryCharge'),
+              ],
+            ),
           ),
         ),
       ),

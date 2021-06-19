@@ -77,7 +77,7 @@ class BatteryIndicatorPlugin: FlutterPlugin, MethodCallHandler, StreamHandler {
     }
   }
 
-  ///
+  /**Gets battery remaining energy information*/
   private fun getBatteryCharge() : Int {
     var remainingEnergy = -1
 
